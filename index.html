@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Wellington Public Transport - Monday</title>
+
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+
+<!-- MapBox CSS -->
+<link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet' />
+
+<!-- jQuery CSS -->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+<!-- iainkirkpatrick.me font -->
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:700' rel='stylesheet' type='text/css'>
+
+<!-- along with other js -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
+
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<style>
+	@media (max-width: 767px) { 
+		.navbar-header strong {
+			font-size: 16px;
+		}
+	}
+  	body { margin:0; padding:0; }
+	#map { position:absolute; top:0; bottom:0; width:100%; }
+	.controls { position: fixed; bottom: 50px; width: inherit; }
+	#slider { top: 9px; }
+	.slider-container { height: 30px; padding-left: 100px; }
+	.playrepeat { float: left; }
+	/*.controls * { float: left; }*/
+	/*.row { position: fixed; bottom: 50px; width: inherit; }*/
+	.container { position: relative; }
+	.navbar { margin-bottom: 20px; text-align: center; }
+	.jumbotron { text-align: center; }
+	.panel-default { position: fixed; bottom: 65px; width: 120px; right: 50%; margin-right: -60px; }
+	.navbar-header {
+	    text-align:center;
+	    float:none;
+	}
+	.nav-center {
+		display: inline-block;
+    	float:none;
+	}
+	.website-title { font-family: 'Source Sans Pro', sans-serif; font-size: 16px; }
+</style>
+</head>
+<body>
+	<div id='map'></div>
+
+    <div class="container">
+
+      <!-- Static navbar -->
+      <div class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <strong class="navbar-brand nav-center">Wellington Public Transport: Monday</strong>
+            <div class="navbar-collapse collapse navbar-left">
+              <ul class="nav navbar-nav website-title">
+              	<li><a href="http://iainkirkpatrick.me">iainkirkpatrick.me</a></li>
+              </ul>
+            </div>
+            <div class="navbar-collapse collapse navbar-right">
+              <ul class="nav navbar-nav">
+              	<li class="icon"><a href="http://twitter.com/iaink23"><i class="fa fa-lg fa-twitter"></i></a></li>
+              	<li class="icon"><a href="http://github.com/iainkirkpatrick"><i class="fa fa-lg fa-github"></i></a></li>
+              </ul>
+            </div>
+          
+          <!-- <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-left">
+              <li class="active"><a href="#">iainkirkpatrick.me</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="active"><a href="./">Twitter</a></li>
+              <li><a href="../navbar-static-top/">GitHub</a></li>
+            </ul>
+          </div> --><!--/.nav-collapse -->
+          </div>
+        </div><!--/.container-fluid -->
+      </div>
+
+      <!-- Main component for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <h1>Wellington Public Transport</h1>
+        <p>Inspired by <a href="https://twitter.com/alphabeta_soup">Richard Law's</a> <a href="http://vimeo.com/88324152">work</a>, this page shows an interactive demo of what public transport in Wellington looks like throughout a Monday. Click the play button to start the visualisation, or drag the slider to move through 30 second slices of time. Click on a vehicle to popup it's name!</p>
+        <p class="alert alert-danger">The data for this demo is MASSIVELY HUGE - <b>50MB</b> - so don't send me angry emails if your bandwidth gets chewed up by loading it multiple times!</p>
+        <p>Once the page is loaded, clicking play or moving the slider won't use any additional data. If you do want to refresh / load the viz multiple times, consider cloning the repository from GitHub and running it locally to avoid data costs. Click the GitHub link in the top-right corner, and further instructions are in the readme. </p>
+        <p>
+          <button type="button" id="btn-start" data-loading-text="Loading..." class="btn btn-primary btn-lg">Load visualisation &raquo;</button>
+        </p>
+        <!-- <div class="progress"></div> -->
+      </div>
+      <div class="row">
+      	<div class="col-xs-4 col-xs-offset-4">
+      	  <div class="panel panel-default hidden">
+			<div class="panel-body text-center">
+			  <b>00:00:00</b>
+			</div>
+		  </div>
+      	</div>
+      </div>
+      <!-- <div class="panel panel-default">
+		<div class="panel-body">
+		  00:00:00
+		</div>
+	  </div> -->
+	  <div class="controls hidden">
+		<div class="playrepeat">
+			<button type="button" id="btn-repeat" class="btn btn-default btn-sm">
+				<span class="glyphicon glyphicon-repeat"></span>
+			</button>
+			<button type="button" id="btn-play" class="btn btn-primary btn-sm">
+				<span class="glyphicon glyphicon-play"></span>
+			</button>
+		</div>
+		<div class="slider-container">
+			<div id="slider"></div>
+		</div>
+      </div>
+    </div> <!-- /container -->
+
+    
+
+    <script type="text/javascript">
+
+    //funcs
+	function typeColor(type) {
+		switch (type) {
+		case "Bus":
+		  // clr = "#FFDC00";
+		  clr = "#ffc700";
+		  break;
+		case "Rail":
+		  clr = "#FF4136";
+		  break;
+		case "Ferry":
+		  clr = "#0074D9";
+		  break;
+		case "Cable Car":
+		  clr = "#85144B";
+		  break;
+		};
+		return clr
+	};
+
+	function addTrip(layerGroup, trip) {
+		var pathOptions = { fill: true, fillOpacity: 0.9, opacity: 0.9, color: typeColor(trip.type) }
+		// console.log(trip.type);
+	    layerGroup.addLayer(L.circle(trip.position, 2, pathOptions).bindPopup('<b>'+trip.short_name+'</b>' + ' (' + trip.type + ')' + '<br>' + trip.long_name));
+	};
+
+	//globals
+	var timeouts = [];
+
+	$('#btn-repeat').click(function() {
+		//interrupt playing
+  		for (var i = 0; i < timeouts.length; i++) {
+      		clearTimeout(timeouts[i])
+      	};
+      	timeouts = [];
+		//set the slider back to 0
+		$( "#slider" ).slider( "option", "value", 0 );
+		var value = 0;
+		//start the slider going again
+		j = 0;
+		for (var i = value; i < 2881; i++) {
+			//a pause in between each increase
+			// $( "#slider" ).slider( "option", "value", i );
+			timeouts.push(setTimeout(function(x) { return function() { $( "#slider" ).slider( "option", "value", x ); }; }(i), 62.5*j));
+			j++;
+		};
+		//change to pause button
+		$('#btn-play').children().removeClass('glyphicon-play').addClass('glyphicon-pause');
+	});
+
+	$('#btn-play').click(function() {
+		//check state of button, is it play or pause?
+		if ($(this).children().hasClass('glyphicon-play')) {
+			//change to pause button
+			$(this).children().removeClass('glyphicon-play').addClass('glyphicon-pause');
+			//start the slider rolling
+			var value = $( "#slider" ).slider( "option", "value" );
+			//increase value by 16 over each second (180 second viz)
+			j = 0;
+			for (var i = value; i < 2881; i++) {
+				//a pause in between each increase
+				// $( "#slider" ).slider( "option", "value", i );
+				timeouts.push(setTimeout(function(x) { return function() { $( "#slider" ).slider( "option", "value", x ); }; }(i), 62.5*j));
+				j++;
+				//COMPLEX
+				//push the slider value x times, where x is equal to 2881 - value (current value of slider), and set the timeouts x times
+				//BUT set the timeouts by 62.5*i, where i MUST start at 0 and increase until 2881 - value
+				//solved with var j?
+			};
+		} else {
+			//interrupt playing
+      		for (var i = 0; i < timeouts.length; i++) {
+	      		clearTimeout(timeouts[i])
+	      	};
+	      	timeouts = [];
+	      	//change to play button
+			$('#btn-play').children().removeClass('glyphicon-pause').addClass('glyphicon-play');
+		};	
+	});
+
+    //loading button function
+    $('#btn-start').click(function() {
+    	//progress bar?
+    	// $('.jumbotron').append('<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"><span class="sr-only">0% Complete</span></div></div>');
+	    var btn = $(this)
+	    btn.button('loading')
+	    //load data, slider, play button etc
+	    //once done, this below goes in the callback
+	    $.getJSON("mondayper30.json", function(data) {
+	    	// $('.progress-bar').attr({"aria-valuenow": "25", style:"width: 25%;"});
+			var monday = data.days[0];
+
+			//add initial circles for starting time
+			var currentTrips = L.layerGroup().addTo(map);
+
+			$.each(monday.times[0].trips, function(index, value) {
+				addTrip(currentTrips, value);
+			});
+
+		    $( "#slider" ).slider({
+		      value: 0,
+		      min: 0,
+		      max: 2880, //2880 is number of 30 seconds in a 24 hour period
+		      step: 1,
+		      start: function() { 
+		      		//interrupt playing if active, reset the play button to 'play'
+		      		for (var i = 0; i < timeouts.length; i++) {
+			      		clearTimeout(timeouts[i])
+			      	};
+			      	timeouts = []; 
+			      	//change button back to play
+			      	$('#btn-play').children().removeClass('glyphicon-pause').addClass('glyphicon-play');
+		        },
+		      slide: function( event, ui ) {
+			      	
+			      	for (var i = 0; i < timeouts.length; i++) {
+			      		clearTimeout(timeouts[i])
+			      	};
+			      	timeouts = [];
+			        // $( "#amount" ).val( "$" + ui.value );
+			        currentTrips.clearLayers();
+
+			    	$.each(monday.times[ui.value].trips, function(index, value) {
+						addTrip(currentTrips, value);
+					});
+
+					$('.panel-body').html('<b>' + monday.times[ui.value].time + '</b>');
+		    	},
+		      change: function( event, ui ) {
+			        currentTrips.clearLayers();
+
+			    	$.each(monday.times[ui.value].trips, function(index, value) {
+						addTrip(currentTrips, value);
+					});
+
+					$('.panel-body').html('<b>' + monday.times[ui.value].time + '</b>');
+		    	}
+			});
+
+		    //bugfix for .controls not inheriting width correctly at small browser sizes (i.e. mobile)
+		    $( ".controls" ).width($('.container').width());
+		    //changing the slider width whenever the browser is resized, the cost of having fixed position
+		    $(window).resize(function(){
+		    	// $( "#slider" ).width($('.container').width());
+		    	$( ".controls" ).width($('.container').width());
+		    });
+
+		    $('.jumbotron').fadeOut( "slow" );
+		    $('.panel-default').removeClass('hidden');
+		    $('.controls').removeClass('hidden');
+		    map.addControl(L.mapbox.infoControl());
+		});
+	});
+
+    //init Mapbox basemap
+	var map = L.mapbox.map('map', 'envintage.h8acp5f9', { zoomControl: false,
+		infoControl: false
+	})
+	    .setView([-41.288498, 174.777647], 11);
+	//only add zoom control if initial window size is bigger than mobile
+	if ($(window).width() >= 768) {
+		new L.Control.Zoom({ position: 'topleft' }).addTo(map);
+	};
+
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    
+  </body>
+</html>
+
