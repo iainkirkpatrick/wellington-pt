@@ -58,10 +58,39 @@
     	float:none;
 	}
 	.website-title { font-family: 'Source Sans Pro', sans-serif; font-size: 16px; }
+	button.title { background:none;border:none; }
+
 </style>
 </head>
 <body>
 	<div id='map'></div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="myModalLabel">About</h4>
+	      </div>
+	      <div class="modal-body">
+	        The data for the visualisation comes from <a href="http://www.metlink.org.nz/info/google-transit-feed/">Metlink</a> in the form of a <a href="https://developers.google.com/transit/gtfs/">General Transit Feed Specification</a> (GTFS). This spec consists of a series of text files which contain data about a transit schedule - see the link for a more detailed breakdown.
+	        <br><br>
+	        I gratefully used Richard's <a href="http://github.com/alpha-beta-soup/A-vs-B">excellent parsing scripts,</a> along with <a href="http://github.com/iainkirkpatrick/GTFS-html/tree/master">shabby ones</a> of my own, to generate a JSON file which contains the transport data. My scripts are in the master branch of this project's repository - if you want to follow my process:
+	        <ul>
+	        	<li>download the Metlink GTFS</li>
+	        	<li>clone Richard's repo, and run his AB_GTFStoSQL.py to generate a SQLite database</li>
+	        	<li>clone my repo, and run SQLtoCSV followed by CSVtoJSON (warning: the CSV file created for Monday is just under 1GB!)</li>
+	        </ul>
+	        If you want to run the viz locally, clone the repo, navigate to the local copy in a terminal, and fire up a local server (a python SimpleHTTPServer should do the trick: <code>python -m SimpleHTTPServer 8000</code> ).
+	        <br><br>
+	        Feel free to <a href="mailto:kirkpatrick.iain@gmail.com">email</a> or <a href="http://twitter.com/iaink23">tweet</a> me if you have any difficulties (they'll likely be caused by my code!). I do intend to organise the code better in and amongst working on other projects.
+	        <br><hr>
+	        NB. I plan on overhauling this viz in the future too - loading a 50MB file borders on the unusable!
+	      </div>
+	    </div>
+	  </div>
+	</div>
 
     <div class="container">
 
@@ -75,7 +104,9 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <strong class="navbar-brand nav-center">Wellington Public Transport: Monday</strong>
+            <button class="title">
+            	<strong class="navbar-brand nav-center" data-toggle="modal" data-target="#myModal">Wellington Public Transport: Monday</strong>
+            </button>
             <div class="navbar-collapse collapse navbar-left">
               <ul class="nav navbar-nav website-title">
               	<li><a href="http://iainkirkpatrick.me">iainkirkpatrick.me</a></li>
@@ -84,7 +115,7 @@
             <div class="navbar-collapse collapse navbar-right">
               <ul class="nav navbar-nav">
               	<li class="icon"><a href="http://twitter.com/iaink23"><i class="fa fa-lg fa-twitter"></i></a></li>
-              	<li class="icon"><a href="http://github.com/iainkirkpatrick"><i class="fa fa-lg fa-github"></i></a></li>
+              	<li class="icon"><a href="http://github.com/iainkirkpatrick/GTFS-html/tree/gh-pages"><i class="fa fa-lg fa-github"></i></a></li>
               </ul>
             </div>
           
@@ -105,7 +136,7 @@
       <div class="jumbotron">
         <h1>Wellington Public Transport</h1>
         <p>Inspired by <a href="https://twitter.com/alphabeta_soup">Richard Law's</a> <a href="http://vimeo.com/88324152">work</a>, this page shows an interactive demo of what public transport in Wellington looks like throughout a Monday. Click the play button to start the visualisation, or drag the slider to move through 30 second slices of time. Click on a vehicle to popup it's name!</p>
-        <p class="alert alert-danger">The data for this demo is MASSIVELY HUGE - <b>50MB</b> - so don't send me angry emails if your bandwidth gets chewed up by loading it multiple times!</p>
+        <p class="alert alert-danger">The data for this demo is MASSIVELY HUGE - <b>50MB</b> - so don't send me angry emails if your bandwidth gets chewed up by loading it multiple times! It will take a minute to load.</p>
         <p>Once the page is loaded, clicking play or moving the slider won't use any additional data. If you do want to refresh / load the viz multiple times, consider cloning the repository from GitHub and running it locally to avoid data costs. Click the GitHub link in the top-right corner, and further instructions are in the readme. </p>
         <p>
           <button type="button" id="btn-start" data-loading-text="Loading..." class="btn btn-primary btn-lg">Load visualisation &raquo;</button>
